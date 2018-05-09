@@ -1,0 +1,71 @@
+---
+- name: Create a Docker Compose Host for OAI testing with enough storage
+  hosts: localhost
+  gather_facts: False
+  vars:
+    key_name: generic-cloud-wk
+    instance_type: c3.4xlarge
+    security_group: ansible
+    image: ami-1d4e7a66
+    region: us-east-1
+  tasks:
+    - name: Launch instance
+      ec2:
+         key_name: "{{ key_name }}"
+         group: "{{ security_group }}"
+         instance_type: "{{ instance_type }}"
+         image: "{{ image }}"
+         wait: true
+         region: "{{ region }}"
+#         vpc_subnet_id: subnet-29e63245
+#         assign_public_ip: yes
+      register: ec2
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: launched
+      with_items: "{{ ec2.instances }}"
+
+    - name: Wait for SSH to come up
+      wait_for:
+        host: "{{ item.public_dns_name }}"
+        port: 22
+        delay: 60
+        timeout: 320
+        state: started
+      with_items: "{{ ec2.instances }}"
+
+- hosts: launched
+  become: true
+  remote_user: ubuntu
+  gather_facts: false
+  tasks:
+    - name: Install Python
+      raw: sudo apt-get update && sudo apt install -y python-minimal
+
+- hosts: launched
+  sudo: yes
+  roles:
+    - ADC
+  vars:
+    docker_compose_version: 1.16.1
+
+- hosts: launched
+  become: true
+  remote_user: ubuntu
+  gather_facts: false
+  vars:
+    tasks_source: "Moff/OneDrive/Projects/Internal"
+  tasks:
+    - name: Add Ubuntu user to Docker group
+      user: name=ubuntu groups=docker append=yes
+
+    - name: Pull OAI Dockerfile artifacts    
+      git:
+        repo: 'https://github.com/moffzilla/OAI-DockerComposer-K8-OpenShift.git'
+        dest: /home/ubuntu/OAI-DockerComposer-K8-OpenShift
+
+    - name: Build and execute OAI images
+      command: docker-compose -f OAI-DockerComposer-K8-OpenShift/docker-compose.yml up -d --build --scale mme=1
+
