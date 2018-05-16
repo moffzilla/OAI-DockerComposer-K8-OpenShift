@@ -13,13 +13,13 @@ OpenAirInterface is an implementation of the 3GPP specifications concerning the 
 - Ubuntu Xenial(16.04) amd64/ Kernel 4.7.2 Low Latency | Cores=2 Mem=8G Root-disk=30G
 
 
-## Install Requirements
+## General Install Requirements
 
 The enviroment installation:
 
 - Install Xenial(16.04) 
 - Install Linux 4.7.2 low latency Kernel (4.7.1 is also supported)
-- Install the latest "docker-ce" release 
+
 
 ## Instructions for Kubernetes
 
@@ -28,71 +28,35 @@ The enviroment installation:
 - K8 Dashboard URL and CLI credentails can be found at https://[Master-IP]:8880
 - You can generate the " ~/.kube/config" contents from "OAI" enviroment then "Kubernetes --> CLI"
 
+Create Kubernetes Objects for OAI
 
-The following instructions are for reference:
+kubectl create -f oai-k8-artifacts/mme.yaml --insecure-skip-tls-verify=true
+kubectl create -f oai-k8-artifacts/db.yaml --insecure-skip-tls-verify=true
+kubectl create -f oai-k8-artifacts/hss.yaml --insecure-skip-tls-verify=true
+kubectl create -f oai-k8-artifacts/spgw.yaml --insecure-skip-tls-verify=true
 
-1) Log in to Ubuntu host machine
-2) Install KERNEL 4.7.x on your host machine, currently 4.7.1 and 4.7.2 is supported.
+Verify all objects are created
 
-Please note that AWS may not like the here referenced low latency Kernel, in MS Azure and Baremetal/VMs it works fine
+kubectl describe deployment mme  --insecure-skip-tls-verify=true
+kubectl describe service mme  --insecure-skip-tls-verify=true
 
-Download Kernel
+*Replace specific OAI Role
 
- `wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.7.2/linux-headers-4.7.2-040702_4.7.2-040702.201608201334_all.deb`
+## Instructions for OpenShift 
 
- `wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.7.2/linux-headers-4.7.2-040702-lowlatency_4.7.2-040702.201608201334_amd64.deb`
 
- `wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.7.2/linux-image-4.7.2-040702-lowlatency_4.7.2-040702.201608201334_amd64.deb`
 
-2.1) Install Kernel
- `sudo dpkg -i *.deb`
+## Instructions for Docker Compose
 
-2.2) Restart your host machine
- `sudo shutdown -r now`
 
-After reboot, login again and check Kernel
+- Run the Ansible Playbook
+       `ansible-playbook ec2_Apache.yml -vvvv --user=ubuntu`
 
-2.3) Verify your kernel
- `uname -r`
 
-For other architectures:
-http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.7.2/
-
-3) Install Docker CE
-
-3.1) Update Repositories
- `sudo apt-get update`
-
-3.2) Install default tools
- `sudo apt-get install apt-transport-https \
-  ca-certificates \
-  curl \
-  software-properties-common`
-
-4) Install Docker
-`curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -`
-
- `sudo add-apt-repository \
-"deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-$(lsb_release -cs) \
-stable"`
-
- `sudo apt-get update`
-
- `sudo apt-get install docker-ce -y`
-
-4.1) Add user to Docker group
- `sudo usermod -aG docker $USER`
- `exit`
-
-4.2) Check that Docker is installed properly
-
- `docker ps -a`
-` docker version`
-
-## Basic Execution
+## Basic Docker Execution
 
 Instructions:
+
 1) Pull the latest image
 `docker pull moffzilla/oai-epc:v02`
 
@@ -123,5 +87,34 @@ tcp        0      0 127.0.0.1:3868          127.0.0.1:39554         ESTABLISHED 
 
 tcp        0      0 127.0.0.1:39554         127.0.0.1:3868          ESTABLISHED  ( S6A MME <--> HSS )
 
+
+## Manual Low Latency Kernel instructions
+
+1) Log in to Ubuntu host machine
+2) Install KERNEL 4.7.x on your host machine, currently 4.7.1 and 4.7.2 is supported.
+
+Please note that AWS may not like the here referenced low latency Kernel, in MS Azure and Baremetal/VMs it works fine
+
+Download Kernel
+
+ `wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.7.2/linux-headers-4.7.2-040702_4.7.2-040702.201608201334_all.deb`
+
+ `wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.7.2/linux-headers-4.7.2-040702-lowlatency_4.7.2-040702.201608201334_amd64.deb`
+
+ `wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.7.2/linux-image-4.7.2-040702-lowlatency_4.7.2-040702.201608201334_amd64.deb`
+
+2.1) Install Kernel
+ `sudo dpkg -i *.deb`
+
+2.2) Restart your host machine
+ `sudo shutdown -r now`
+
+After reboot, login again and check Kernel
+
+2.3) Verify your kernel
+ `uname -r`
+
+For other architectures:
+http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.7.2/
 
 
