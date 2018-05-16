@@ -1,0 +1,46 @@
+---
+- name: update cache
+  become: true
+  apt:
+      upgrade: yes
+      update_cache: yes
+      cache_valid_time: 86400
+
+- name: Install the packgaes
+  become: true
+  apt:
+      name: "{{ item }}"
+      state: present
+  with_items:
+      - htop
+      - git
+      - curl
+      - unzip
+      - make
+      - ca-certificates
+      - jq
+      - ipcalc
+      - python-dev
+      - python-pip
+      - python-yaml
+
+- name: Disable system swap
+  shell: swapoff -a
+
+- name: Remove current swaps from /etc/fstab
+  lineinfile:
+      dest: /etc/fstab
+      regexp: '(?i)^([^#][\S]+\s+(none|swap)\s+swap.*)'
+      line: '#\1'
+      backrefs: yes
+      state: present
+
+- name: Disable swapiness
+  become: yes
+  sysctl:
+      name: "{{ item.name }}"
+      value: "{{ item.value }}"
+      state: present
+  with_items: 
+   - { name: 'vm.swappiness', value: '0' }
+

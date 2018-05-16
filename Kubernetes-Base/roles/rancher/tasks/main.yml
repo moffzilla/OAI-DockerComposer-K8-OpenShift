@@ -1,0 +1,23 @@
+---
+- name: Clone Rancher Artifacts
+  become: yes
+  git:
+    repo: https://gerrit.onap.org/r/oom
+    dest: /mnt/onap/oom
+    clone: yes
+
+- name: Clone Rancher Artifacts
+  shell: 'cd /mnt/onap/oom && git pull https://gerrit.onap.org/r/oom refs/changes/19/32019/6 --commit --no-edit'
+
+- name: Discover local IP
+  shell: ifconfig | grep -A 1 'ens3' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1
+  register: localip
+  ignore_errors: true
+
+- name: Deploy Rancher & Kubernetes
+  shell: sudo /mnt/onap/oom/install/rancher/oom_rancher_setup.sh -b master -s {{localip.stdout}} -e onap
+
+# When complete "kubectl cluster-info"
+# You can access https://{{localip.stdout}}:8880  --> Rancher GUI, Select ONAP Enviroment and K8 UI is available
+
+

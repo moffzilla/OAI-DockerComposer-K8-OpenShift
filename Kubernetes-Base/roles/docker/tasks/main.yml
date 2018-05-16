@@ -1,0 +1,61 @@
+---
+- name: Add apt repo key
+  become: true
+  apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+  register: add_repo_key
+  ignore_errors: true
+
+- name: Add docker repo
+  become: true
+  apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+      update_cache: yes
+      state: present
+
+- name: Install docker
+  become: true
+  apt:
+      name: "docker-ce={{ docker_version }}*"
+
+- name: Add ubuntu user to docker group
+  become: true
+  user: name=ubuntu groups=docker append=yes
+
+- name: partition new disk
+  shell: /bin/echo -e "n\np\n1\n\n\nw" | sudo fdisk /dev/xvdh
+
+- filesystem:
+    fstype: ext4
+    dev: /dev/xvdh1
+#        opts: -cc
+
+- name: Creates New Docker ONAP Mount directory
+  file: 
+    path: /mnt
+    state: directory
+    mode: "u=rwx,g=wx,o=rwx"
+
+- name: Mount New File System
+  shell: sudo mount /dev/xvdh1 /mnt
+
+- name: Make Mount Point Permanent
+  shell: |
+    echo '/dev/xvdh1    /mnt    ext4    defaults    0    1' >> /etc/fstab
+
+- name: Set ownership to Mount Point
+  shell: sudo chown -R ubuntu:ubuntu /mnt
+
+- name: Stop Docker
+  shell: sudo service docker stop  
+
+- name: Move Default Docker image directory
+  shell: sudo mv /var/lib/docker /mnt/docker
+
+- name: Create Link
+  shell: sudo ln -s /mnt/docker /var/lib/docker
+
+- name: Start Docker
+  shell: sudo service docker start
+

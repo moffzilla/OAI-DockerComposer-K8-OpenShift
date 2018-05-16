@@ -1,0 +1,18 @@
+---
+#"Description" : "Ansible Playbook to Configure a Secondary HDD & Apache
+
+- name: Configure Secondary HDD, Install and Configure Docker, Deploy Rancher 
+  hosts: localhost
+  gather_facts: False
+  become: true
+  remote_user: ubuntu
+
+  roles:
+    - common
+    - docker
+    - rancher
+
+
+
+  
+
