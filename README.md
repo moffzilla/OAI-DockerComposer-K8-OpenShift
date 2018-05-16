@@ -50,8 +50,10 @@ kubectl describe service mme  --insecure-skip-tls-verify=true
 
 
 - Run the Ansible Playbook
-       `ansible-playbook ec2_Apache.yml -vvvv --user=ubuntu`
 
+       `ansible-playbook ec2_module-oai.yml -vvvv --user=ubuntu`
+       
+    The playbook install Docker SW, builds images and deploys all roles at once
 
 ## Basic Docker Execution
 
