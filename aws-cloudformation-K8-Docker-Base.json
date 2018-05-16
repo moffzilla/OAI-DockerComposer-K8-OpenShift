@@ -1,0 +1,129 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Template to launch an Ubuntu Linux instance running ONAP in Docker Containers.",
+  "Parameters": {
+    "InstanceType": {
+      "Type": "String",
+      "Default": "r4.2xlarge",
+      "AllowedValues": [
+        "r4.2xlarge"
+      ],
+      "Description": "Only default r4.2xlarge will be allowed"
+    },
+    "KeyName": {
+      "Type": "String",
+      "Default": "generic-cloud-wk",
+      "Description": "Enter the key pair name that you want associated with this instance. Note: Name is required"
+    },
+    "AnsibleRepository": {
+      "Type": "String",
+      "Default": "https://github.com/moffzilla/OAI-DockerComposer-K8-OpenShift",
+      "Description": "The git repository of Ansible playbooks"
+    },
+    "AnsiblePlaybook": {
+      "Type": "String",
+      "Default": "Kubernetes-Base/docker_rancher.yml",
+      "Description": "The Ansible playbook to use for deploying Rancher"
+    }
+  },
+  "Mappings": {
+      "RegionMap" : {
+          "us-east-1"      : { "AMI" : "ami-1d4e7a66" }
+      }
+  },
+  "Resources": {
+    "Ec2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId":  {"Fn::FindInMap":["RegionMap", {"Ref" : "AWS::Region" }, "AMI" ]},
+        "InstanceType": { "Ref": "InstanceType" },
+        "KeyName": { "Ref": "KeyName" },
+        "SecurityGroups": [ { "Ref": "dockerRANCHER" } ],
+        "UserData": {
+          "Fn::Base64": { "Fn::Join": [ "", [
+            "#!/bin/bash\n",
+            "sudo apt-add-repository ppa:ansible/ansible -y \n",
+            "sudo apt-get update -y\n",
+            "sudo apt-get install -y ansible git\n",
+            "echo \"localhost ansible_connection=local\" > /etc/ansible/hosts\n",
+            "sudo ansible-pull -U ", {"Ref": "AnsibleRepository"}," ",{"Ref": "AnsiblePlaybook"},"\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+"NewVolume" : {
+      "Type" : "AWS::EC2::Volume",
+      "Properties" : {
+         "Size" : "128",
+         "AvailabilityZone" : { "Fn::GetAtt" : [ "Ec2Instance", "AvailabilityZone" ] }
+      }
+   },
+   "MountPoint" : {
+    "Type" : "AWS::EC2::VolumeAttachment",
+    "Properties" : {
+       "InstanceId" : { "Ref" : "Ec2Instance" },
+       "VolumeId"  : { "Ref" : "NewVolume" },
+       "Device" : "/dev/sdh"
+    }
+ },
+   
+    
+"dockerRANCHER": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable tcp access for Web and SSH traffic from outside",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "0",
+            "ToPort": "65535",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "udp",
+            "FromPort": "0",
+            "ToPort": "65535",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "InstanceId": {
+      "Description": "Instance ID of the Web Server",
+      "Value": {
+        "Ref": "Ec2Instance"
+      }
+    },
+    "AZ": {
+      "Description": "Instances is running in Availability Zone ",
+      "Value": {
+        "Fn::GetAtt": [
+          "Ec2Instance",
+          "AvailabilityZone"
+        ]
+      }
+    },
+    "PublicIP": {
+      "Description": "Public IP",
+      "Value": {
+        "Fn::GetAtt": [
+          "Ec2Instance",
+          "PublicIp"
+        ]
+      }
+    },
+    "PublicDNS": {
+      "Description": "Instance Public DNS Name",
+      "Value": {
+        "Fn::GetAtt": [
+          "Ec2Instance",
+          "PublicDnsName"
+        ]
+      }
+    }
+  }
+}
