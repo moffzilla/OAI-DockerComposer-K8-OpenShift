@@ -15,7 +15,7 @@
   ignore_errors: true
 
 - name: Deploy Rancher & Kubernetes
-  shell: sudo /mnt/onap/oom/install/rancher/oom_rancher_setup.sh -b master -s {{localip.stdout}} -e onap
+  shell: sudo /mnt/onap/oom/install/rancher/oom_rancher_setup.sh -b master -s {{localip.stdout}} -e oai
 
 # When complete "kubectl cluster-info"
 # You can access https://{{localip.stdout}}:8880  --> Rancher GUI, Select ONAP Enviroment and K8 UI is available

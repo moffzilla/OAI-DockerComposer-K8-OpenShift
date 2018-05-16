@@ -12,6 +12,7 @@ OpenAirInterface is an implementation of the 3GPP specifications concerning the 
 - Running on Xenial (Cores=2 Mem=8G Root-Disk=30G)
 - Ubuntu Xenial(16.04) amd64/ Kernel 4.7.2 Low Latency | Cores=2 Mem=8G Root-disk=30G
 
+
 ## Install Requirements
 
 The enviroment installation:
@@ -19,6 +20,14 @@ The enviroment installation:
 - Install Xenial(16.04) 
 - Install Linux 4.7.2 low latency Kernel (4.7.1 is also supported)
 - Install the latest "docker-ce" release 
+
+## Instructions for Kubernetes
+
+- To avoid the certificate issue always include "--insecure-skip-tls-verify=true"
+	kubectl get all --insecure-skip-tls-verify=true
+- K8 Dashboard URL and CLI credentails can be found at https://[Master-IP]:8880
+- You can generate the " ~/.kube/config" contents from "OAI" enviroment then "Kubernetes --> CLI"
+
 
 The following instructions are for reference:
 
