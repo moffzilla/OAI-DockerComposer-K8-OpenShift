@@ -1,4 +1,3 @@
-frontend.yaml docs/tasks/access-application-cluster  
 apiVersion: v1
 kind: Service
 metadata:
@@ -10,8 +9,7 @@ spec:
   ports:
   - protocol: "TCP"
     port: 80
-    targetPort: 80
-  type: LoadBalancer
+  type: NodePort 
 ---
 apiVersion: apps/v1beta2
 kind: Deployment
