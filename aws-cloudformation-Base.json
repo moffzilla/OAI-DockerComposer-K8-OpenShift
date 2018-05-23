@@ -23,7 +23,7 @@
     "AnsiblePlaybook": {
       "Type": "String",
       "Default": "Kubernetes-Base/docker_rancher.yml",
-      "Description": "The Ansible playbook to use for deploying Rancher"
+      "Description": "The Ansible playbook to use for deploying Rancher (docker_rancher.yml) or OpenShift (openshift.yml) on Atomic (ami-da25dea0)"
     }
   },
   "Mappings": {
@@ -38,7 +38,7 @@
         "ImageId":  {"Fn::FindInMap":["RegionMap", {"Ref" : "AWS::Region" }, "AMI" ]},
         "InstanceType": { "Ref": "InstanceType" },
         "KeyName": { "Ref": "KeyName" },
-        "SecurityGroups": [ { "Ref": "dockerRANCHER" } ],
+        "SecurityGroups": [ { "Ref": "OpenNetwork" } ],
         "UserData": {
           "Fn::Base64": { "Fn::Join": [ "", [
             "#!/bin/bash\n",
@@ -70,7 +70,7 @@
  },
    
     
-"dockerRANCHER": {
+"OpenNetwork": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "GroupDescription": "Enable tcp access for Web and SSH traffic from outside",

@@ -1,0 +1,17 @@
+---
+#"Description" : "Ansible Playbook to Deploy & Configure OpenShift
+
+- name: Configure Secondary HDD, Install and Configure Docker, Deploy Rancher 
+  hosts: localhost
+  gather_facts: False
+  become: true
+  remote_user: fedora
+
+  roles:
+  #  - common
+    - deploy-openshift
+  
+
+
+  
+
