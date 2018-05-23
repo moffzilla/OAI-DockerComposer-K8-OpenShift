@@ -24,18 +24,18 @@
       "Type": "String",
       "Default": "Kubernetes-Base/docker_rancher.yml",
       "Description": "The Ansible playbook to use for deploying Rancher (docker_rancher.yml) or OpenShift (openshift.yml) on Atomic (ami-da25dea0)"
-    },
-    "MyImage": {
-      "Type": "String",
-      "Default": "",
-      "Description": "Ubuntu (ami-1d4e7a66) or Atomic (ami-da25dea0)"
     }
   },
-    "Resources": {
+  "Mappings": {
+      "RegionMap" : {
+          "us-east-1"      : { "AMI" : "ami-1d4e7a66" }
+      }
+  },
+  "Resources": {
     "Ec2Instance": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
-        "ImageId":  {"Ref" : "MyImage" },
+        "ImageId":  {"Fn::FindInMap":["RegionMap", {"Ref" : "AWS::Region" }, "AMI" ]},
         "InstanceType": { "Ref": "InstanceType" },
         "KeyName": { "Ref": "KeyName" },
         "SecurityGroups": [ { "Ref": "OpenNetwork" } ],

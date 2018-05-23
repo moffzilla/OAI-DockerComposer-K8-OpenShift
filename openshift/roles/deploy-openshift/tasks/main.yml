@@ -9,10 +9,17 @@
 - name: Clone Rancher Artifacts
   shell: 'cd /mnt/onap/oom && git pull https://gerrit.onap.org/r/oom refs/changes/19/32019/6 --commit --no-edit'
 
-#- name: Deploy Rancher & Kubernetes
-#  shell: sudo /mnt/onap/oom/install/rancher/oom_rancher_setup.sh -b master -s {{localip.stdout}} -e oai
+- name: Pull openshift/origin Image
+  shell: docker pull openshift/origin
+
+- name: Run openshift/origin as Docker Container
+  shell: docker run --name="origins" -id openshift/origin
 
 # When complete "kubectl cluster-info"
-# You can access https://{{localip.stdout}}:8880  --> Rancher GUI, Select ONAP Enviroment and K8 UI is available
+# Start the server:
+#$ oc cluster up
+#starts OpenShift Origin listening on local interface on your host (127.0.0.1:8443),
+#starts the web console listening on all interfaces at /console (127.0.0.1:8443),
+#launches the Kubernetes system components, and provisions registry, router, initial templates, and a default project.
 
 
