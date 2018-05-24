@@ -27,7 +27,7 @@
     },
     "MyImage": {
       "Type": "String",
-      "Default": "",
+      "Default": "ami-1d4e7a66",
       "Description": "Ubuntu (ami-1d4e7a66) or Atomic (ami-da25dea0)"
     }
   },

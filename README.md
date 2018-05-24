@@ -17,11 +17,22 @@ OpenAirInterface is an implementation of the 3GPP specifications concerning the 
 
 The enviroment installation:
 
-- Install Xenial(16.04) 
-- Install Linux 4.7.2 low latency Kernel (4.7.1 is also supported)
+- Xenial(16.04) 
+- Linux 4.7.2 low latency Kernel (4.7.1 is also supported) for loading GTP module
 
 
 ## Instructions for Kubernetes
+
+Create :
+
+`aws cloudformation create-stack --stack-name K8-OAI --template-body file://$PWD/aws-cloudformation-Base.json`
+
+Monitor: 
+`aws cloudformation describe-stacks --stack-name Origin-OAI`
+
+Delete:
+
+`aws cloudformation delete-stack --stack-name K8-OAI`
 
 - To avoid the certificate issue always include "--insecure-skip-tls-verify=true"
 	kubectl get all --insecure-skip-tls-verify=true
@@ -44,6 +55,11 @@ kubectl describe service mme  --insecure-skip-tls-verify=true
 
 ## Instructions for OpenShift 
 
+`aws cloudformation create-stack --stack-name Origin-OAI --template-body file://$PWD/aws-cloudformation-Base.json --parameters ParameterKey=AnsiblePlaybook,ParameterValue=Kubernetes-Base/openshift.yml ParameterKey=MyImage,ParameterValue=ami-da25dea0`
+
+Delete:
+
+`aws cloudformation delete-stack --stack-name Origin-OAI`
 
 
 ## Instructions for Docker Compose
